@@ -1,0 +1,62 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 27
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation project(':openCVLibrary341')
+    compileOnly files('/Users/chinna/MAAS/SendEmail/libs/activation.jar')
+    compileOnly files('/Users/chinna/MAAS/SendEmail/libs/mail.jar')
+    compileOnly files('/Users/chinna/MAAS/SendEmail/libs/additionnal.jar')
+}
+// task to delete the old jar
+task deleteOldJar(type: Delete) {
+    delete 'release/ToastPlugin.jar'
+}
+
+task deleteOldJarFromPlugin(type: Delete) {
+    delete '/Users/chinna/MAAS/NS/nativescript-opencv-plugin/platforms/android/libs/opencvPlugin.jar'
+}
+task deleteOldPlugin(type: Delete) {
+    delete '/Users/chinna/MAAS/NS/BSApp/node_modules/nativescript-opencv-plugin'
+}
+// task to export contents as jar
+task exportJar(type: Copy) {
+    from('build/intermediates/packaged-classes/release/')
+    into('release')
+    include('classes.jar')
+    // name the plugin
+    rename('classes.jar','ToastPlugin.jar')
+}
+task copyJar(type: Copy) {
+    from('release')
+    into('/Users/chinna/MAAS/NS/debugJAR/app/libs')
+    include('ToastPlugin.jar')
+    // name the plugin
+    rename('ToastPlugin.jar','opencvPlugin.jar')
+}
+task copyJarToPlugin(type: Copy) {
+    from('release')
+    into('/Users/chinna/MAAS/NS/nativescript-opencv-plugin/platforms/android/libs')
+    include('ToastPlugin.jar')
+    // name the plugin
+    rename('ToastPlugin.jar','opencvPlugin.jar')
+}
+exportJar.dependsOn(deleteOldJar, build)
